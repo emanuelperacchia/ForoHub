@@ -1,4 +1,4 @@
-package com.aluracursos.forohub.ForoHub;
+package com.aluracursos.forohub;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

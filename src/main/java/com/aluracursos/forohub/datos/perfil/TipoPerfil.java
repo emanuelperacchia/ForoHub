@@ -1,5 +1,12 @@
 package com.aluracursos.forohub.datos.perfil;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 public enum TipoPerfil {
-    PROFESOR, ALUMNO,ADMINISTRACION
+    @JsonAlias("Profesor")
+    PROFESOR,
+    @JsonAlias("Alumno")
+    ALUMNO,
+    @JsonAlias("Administracion")
+    ADMINISTRACION
 }

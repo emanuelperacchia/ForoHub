@@ -4,5 +4,5 @@ import com.aluracursos.forohub.datos.topicos.Topicos;
 import com.aluracursos.forohub.datos.usuario.Usuario;
 import org.springframework.format.annotation.DateTimeFormat;
 
-public record Respuesta(String mensaje, Topicos topico, DateTimeFormat fechaCreacion, Usuario autor, boolean solucion) {
+public record Respuesta(String mensaje, Long idTopico,Long idAutor, boolean solucion) {
 }

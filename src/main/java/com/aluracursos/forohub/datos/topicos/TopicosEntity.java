@@ -38,11 +38,11 @@ public class TopicosEntity {
     @Column(name = "status", nullable = false, length = 50)
     private Estado status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "autor_id", nullable = false)
     private UsuarioEntity autor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "curso_id", nullable = false)
     private CursoEntity curso;
 
@@ -52,5 +52,8 @@ public class TopicosEntity {
     @PrePersist
     protected void onCreate() {
         this.fechaCreacion = LocalDateTime.now();
+    }
+
+    public void setAutorUltimaModificacion(UsuarioEntity usuarioAutenticado) {
     }
 }

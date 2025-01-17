@@ -27,4 +27,9 @@ public class CursoEntity {
 
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TopicosEntity> topicos;
+    public void setCurso(Long id, String nombre, Categoria categoria){
+        this.id = id;
+        this.nombre = nombre;
+        this.categoria = categoria;
+    }
 }

@@ -35,17 +35,12 @@ public class TopicoService {
 
 
     public TopicoDetalleDTO registrarTopico(RegistroTopicoDTO dto, UsuarioEntity autor) {
-        log.info("Intentando registrar un tópico con título: {}", dto.titulo());
-
         if (topicoRepository.existsByTituloAndMensaje(dto.titulo(), dto.mensaje())) {
-            log.error("Tópico duplicado detectado: título={}, mensaje={}", dto.titulo(), dto.mensaje());
-            throw new ValidacionException("Ya existe un tópico con el mismo título y mensaje");
+            throw new ValidacionException("Ya existe un tópico con el título '" + dto.titulo() + "' y el mensaje especificado");
         }
+
         CursoEntity curso = cursoRepository.findById(dto.cursoId())
-                .orElseThrow(() -> {
-                    log.error("Curso no encontrado con ID: {}", dto.cursoId());
-                    return new ValidacionException("Curso no encontrado");
-                });
+                .orElseThrow(() -> new ValidacionException("Curso no encontrado con ID: " + dto.cursoId()));
 
         TopicosEntity topico = new TopicosEntity();
         topico.setTitulo(dto.titulo());
@@ -56,7 +51,6 @@ public class TopicoService {
 
         topicoRepository.save(topico);
 
-        log.info("Tópico registrado exitosamente: ID={}", topico.getId());
         return new TopicoDetalleDTO(topico);
     }
 
@@ -75,9 +69,9 @@ public class TopicoService {
                 .toList();
     }
     @Transactional
-    public List<TopicoDetalleDTO> buscarPorCursoYRangoFechas(String curso, LocalDateTime inicio, LocalDateTime fin) {
-        log.info("Buscando tópicos para curso: {}, entre {} y {}", curso, inicio, fin);
-        var topicos = topicoRepository.buscarPorCursoYRangoFechas(curso, inicio, fin);
+    public List<TopicoDetalleDTO> buscarPorCursoYAnio(String curso, int anio) {
+        log.info("Buscando tópicos para curso: {}, año: {}", curso, anio);
+        var topicos = topicoRepository.buscarPorCursoYAnio(curso, anio);
         return topicos.stream()
                 .map(TopicoDetalleDTO::new)
                 .toList();

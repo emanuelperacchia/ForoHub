@@ -20,10 +20,9 @@ public interface TopicoRepository extends JpaRepository<TopicosEntity, Long> {
 
     List<TopicosEntity> findTop10ByOrderByFechaCreacionAsc();
 
-    @Query("SELECT t FROM topico t WHERE t.curso.nombre = :curso AND t.fechaCreacion BETWEEN :inicio AND :fin")
-    List<TopicosEntity> buscarPorCursoYRangoFechas(@Param("curso") String curso,
-                                                   @Param("inicio") LocalDateTime inicio,
-                                                   @Param("fin") LocalDateTime fin);
-
+    @Query("SELECT t FROM topico t WHERE t.curso.nombre = :curso " +
+            "AND YEAR(t.fechaCreacion) = :anio")
+    List<TopicosEntity> buscarPorCursoYAnio(@Param("curso") String curso,
+                                            @Param("anio") int anio);
     Page<TopicosEntity> findAll(Pageable pageable);
 }

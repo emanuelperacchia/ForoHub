@@ -1,48 +1,36 @@
 package com.aluracursos.forohub.infra.errores;
 
 import com.aluracursos.forohub.datos.ValidacionException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGeneralException(Exception e) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEntityNotFound(EntityNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "error", "Recurso no encontrado",
+                "detalles", e.getMessage()
+        ));
     }
+
     @ExceptionHandler(ValidacionException.class)
     public ResponseEntity<Map<String, String>> handleValidacionException(ValidacionException e) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", "Error de validación",
+                "detalles", e.getMessage()
+        ));
     }
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-        return ResponseEntity.badRequest().body(errors);
-    }
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException e) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "Acceso denegado");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Map<String, String>> handleAuthenticationException(AuthenticationException e) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "No autenticado");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGenericException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "error", "Error interno del servidor",
+                "detalles", e.getMessage()
+        ));
     }
 }

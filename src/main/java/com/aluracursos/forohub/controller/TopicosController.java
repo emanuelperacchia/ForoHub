@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/topico")
@@ -74,21 +74,17 @@ public class TopicosController {
             @RequestParam int anio) {
         log.info("Parámetros recibidos - curso: '{}', año: {}", curso, anio);
 
-        // Verificar si el curso existe
+        // Buscar el curso por nombre
         var cursos = cursoRepository.findByNombre(curso);
         if (cursos.isEmpty()) {
             log.warn("No se encontró ningún curso con el nombre '{}'", curso);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado");
         }
-        CursoEntity cursoExistente = cursos.get(0); // Tomar el primer curso si hay duplicados
+        CursoEntity cursoExistente = cursos.get(0);
         log.info("Curso encontrado: {}", cursoExistente.getNombre());
 
-        // Calcular el rango de fechas para el año dado
-        LocalDateTime inicioAnio = LocalDateTime.of(anio, 1, 1, 0, 0);
-        LocalDateTime finAnio = LocalDateTime.of(anio, 12, 31, 23, 59);
-
-        // Llamar al servicio para buscar los tópicos
-        var topicos = topicoService.buscarPorCursoYRangoFechas(curso, inicioAnio, finAnio);
+        // Buscar los tópicos para el curso y el año
+        var topicos = topicoService.buscarPorCursoYAnio(curso, anio);
         if (topicos.isEmpty()) {
             log.info("No se encontraron tópicos para el curso '{}' en el año {}", curso, anio);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -145,16 +141,24 @@ public class TopicosController {
             @AuthenticationPrincipal UsuarioEntity usuarioAutenticado) {
 
         if (usuarioAutenticado == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "error", "Usuario no autenticado"
+            ));
         }
 
         try {
             topicoService.eliminarTopico(id, usuarioAutenticado);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(Map.of("mensaje", "Tópico eliminado correctamente"));
         } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                    "error", "Acceso denegado",
+                    "detalles", e.getMessage()
+            ));
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", "Tópico no encontrado",
+                    "detalles", e.getMessage()
+            ));
         }
     }
 }
